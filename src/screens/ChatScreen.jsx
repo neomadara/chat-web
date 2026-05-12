@@ -9,6 +9,8 @@ const FILTERS = ['Todos', 'Sin leer', 'Leídos']
 export default function ChatScreen({ session }) {
   const navigate = useNavigate()
   const { data: chatrooms, isLoading } = useChatRooms(session)
+  console.log('session uid:', session?.user?.id)
+  console.log('chatrooms:', JSON.stringify(chatrooms))
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('Todos')
 

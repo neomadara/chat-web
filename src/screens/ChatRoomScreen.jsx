@@ -26,8 +26,23 @@ export default function ChatRoomScreen({ session }) {
 
   const { mutate: sendMessage, isPending } = useSendMessage()
 
-  const allGroups = (data?.pages?.flatMap(page => page.groups || []) ?? [])
-  .sort((a, b) => new Date(a.date_trunc).getTime() - new Date(b.date_trunc).getTime())
+  const allGroups = (data?.pages ? [...data.pages].reverse().flatMap(page => page.groups || []) : [])
+  .reduce((acc, group) => {
+    const last = acc[acc.length - 1]
+    const groupDay = new Date(group.date_trunc).toDateString()
+    const lastDay = last ? new Date(last.date_trunc).toDateString() : null
+
+    if (last && groupDay === lastDay) {
+      last.mensajes_list = [...last.mensajes_list, ...(group.mensajes_list || [])]
+    } else {
+      acc.push({
+        ...group,
+        mensajes_list: [...(group.mensajes_list || [])]
+      })
+    }
+
+    return acc
+  }, [])
 
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
