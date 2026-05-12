@@ -20,7 +20,6 @@ export const chatService = {
   groupMessagesByDate(messages) {
   if (!messages || !messages.length) return []
 
-  // Agrupar mensajes planos por fecha
   const groups = {}
   messages.forEach(msg => {
     const day = new Date(msg.created_at).toISOString().split('T')[0]
@@ -33,9 +32,19 @@ export const chatService = {
     groups[day].mensajes_list.push(msg)
   })
 
-  return Object.values(groups).sort(
-    (a, b) => new Date(a.date_trunc) - new Date(b.date_trunc)
+  // Ordenar grupos por fecha ASC
+  const sortedGroups = Object.values(groups).sort(
+    (a, b) => new Date(a.date_trunc).getTime() - new Date(b.date_trunc).getTime()
   )
+
+  // Ordenar mensajes dentro de cada grupo por hora ASC
+  sortedGroups.forEach(group => {
+    group.mensajes_list.sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    )
+  })
+
+  return sortedGroups
 },
 
   async sendMessage(mensajito) {
@@ -78,7 +87,7 @@ export const chatService = {
     .select('*')
     .eq('chatroom_id', chatroomId)
     .neq('msg_type', 0)
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: true })
     .range(from, to)
 
   if (error) throw error
