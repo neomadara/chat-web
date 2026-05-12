@@ -4,6 +4,7 @@ import { useChatMessages } from '../shared/hooks/chat/useChatMessages'
 import { useSendMessage } from '../shared/hooks/chat/useSendMessage'
 import { chatService } from '../shared/services/chatService'
 import styles from './ChatRoomScreen.module.css'
+import { useQueryClient } from '@tanstack/react-query'
 
 const MAX_CHARS = 300
 
@@ -15,6 +16,7 @@ export default function ChatRoomScreen({ session }) {
   const messagesEndRef = useRef(null)
   const [text, setText] = useState('')
   const hasScrolledRef = useRef(false)
+  const queryClient = useQueryClient()
 
   const {
     data,
@@ -84,11 +86,14 @@ export default function ChatRoomScreen({ session }) {
     }
   }
 
-  const handleDelete = (messageId) => {
-    if (window.confirm('¿Eliminar este mensaje?')) {
-      chatService.deleteMessage(messageId)
-    }
+  const handleDelete = async (messageId) => {
+  if (window.confirm('¿Eliminar este mensaje?')) {
+    await chatService.deleteMessage(messageId)
+    queryClient.invalidateQueries({
+      queryKey: ['chatMessages', friendId, session?.user?.id]
+    })
   }
+}
 
   if (isLoading) {
     return (
