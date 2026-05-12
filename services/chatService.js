@@ -21,23 +21,29 @@ export const chatService = {
   if (!messages || !messages.length) return []
 
   const groups = {}
+
   messages.forEach(msg => {
-    const day = new Date(msg.created_at).toISOString().split('T')[0]
-    if (!groups[day]) {
-      groups[day] = {
-        date_trunc: new Date(msg.created_at).toISOString(),
+    const d = new Date(msg.created_at)
+    const dayKey = [
+      d.getFullYear(),
+      String(d.getMonth() + 1).padStart(2, '0'),
+      String(d.getDate()).padStart(2, '0')
+    ].join('-')
+
+    if (!groups[dayKey]) {
+      groups[dayKey] = {
+        date_trunc: msg.created_at,
         mensajes_list: []
       }
     }
-    groups[day].mensajes_list.push(msg)
+
+    groups[dayKey].mensajes_list.push(msg)
   })
 
-  // Ordenar grupos por fecha ASC
   const sortedGroups = Object.values(groups).sort(
     (a, b) => new Date(a.date_trunc).getTime() - new Date(b.date_trunc).getTime()
   )
 
-  // Ordenar mensajes dentro de cada grupo por hora ASC
   sortedGroups.forEach(group => {
     group.mensajes_list.sort(
       (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
@@ -87,13 +93,13 @@ export const chatService = {
     .select('*')
     .eq('chatroom_id', chatroomId)
     .neq('msg_type', 0)
-    .order('created_at', { ascending: true })
+    .order('created_at', { ascending: false })
     .range(from, to)
 
   if (error) throw error
 
   // Retornar en orden ascendente para que se vean bien en la UI
-  return data ? data.reverse() : []
+  return data ?? []
 },
 
   async getOrCreateChatroomId(userId, friendId) {
