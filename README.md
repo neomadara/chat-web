@@ -1,24 +1,97 @@
-# React + Vite
+# chat-web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Version web del sistema de mensajeria en tiempo real. Implementada con React.js + Vite.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React.js + Vite
+- TanStack Query (gestion de estado y cache)
+- Supabase JS (base de datos y autenticacion)
+- React Router DOM (navegacion)
+- CSS Modules (estilos)
 
-## React Compiler
+## Requisitos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js 18+
+- Cuenta en Supabase con el proyecto configurado
 
-## Expanding the ESLint configuration
+## Instalacion
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+# Clonar el repositorio
+git clone https://github.com/TU_USUARIO/chat-web.git
+cd chat-web
 
+# Instalar dependencias
+npm install
 
-## Sincronización con chat-shared (git subtree)
+# Configurar variables de entorno
+cp src/shared/.env-example .env
+# Editar .env y usar variables VITE_* para la app web
+```
 
-Dentro de chat-web, edita `src/shared/services/chatService.js`:
+## Variables de entorno
+
+```bash
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key_here
+```
+
+## Ejecutar en desarrollo
+
+```bash
+npm run dev
+```
+
+Abre http://localhost:5173 en el navegador.
+
+## Build para produccion
+
+```bash
+npm run build
+npm run preview
+```
+
+## Estructura
+
+```text
+src/
+|-- lib/
+|   `-- supabaseweb.js       # Inicializacion de Supabase con variables VITE_
+|-- screens/
+|   |-- LoginScreen.jsx      # Pantalla de login
+|   |-- ChatScreen.jsx       # Lista de conversaciones
+|   |-- ChatRoomScreen.jsx   # Chat individual con realtime
+|   `-- *.module.css         # Estilos de cada pantalla
+|-- shared/                  # Codigo compartido (git subtree de chat-shared)
+|   |-- lib/
+|   |-- services/
+|   |-- hooks/
+|   `-- components/
+`-- App.jsx                  # Rutas y auth guard
+```
+
+## Funcionalidades
+
+- Login con email y password
+- Lista de conversaciones con busqueda y filtros (Todos / Sin leer / Leidos)
+- Mensajes en tiempo real via Supabase Realtime
+- Mensajes agrupados por fecha con separadores
+- Burbujas estilo WhatsApp (propios a la derecha, recibidos a la izquierda)
+- Paginacion - cargar mensajes anteriores
+- Eliminar mensajes (doble click)
+- Logout
+
+## Sincronizar shared layer
+
+```bash
+git remote add shared https://github.com/TU_USUARIO/chat-shared.git
+git subtree pull --prefix=src/shared shared main --squash
+```
+
+## Sincronizacion con chat-shared (git subtree)
+
+Dentro de chat-web, edita src/shared/services/chatService.js:
 
 ```bash
 git add .
@@ -38,7 +111,7 @@ cd ../chat-mobile
 git subtree pull --prefix=src/shared https://github.com/TU_USUARIO/chat-shared.git main --squash
 ```
 
-### Usando el remote `shared`
+### Usando el remote shared
 
 Jalar cambios desde chat-shared:
 
